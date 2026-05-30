@@ -28,6 +28,27 @@ export default async function ExecutionsPage({ searchParams }) {
         <h1>Listado de Ejecuciones</h1>
       </div>
       <ExecutionsTable executions={executions} />
+      {page > 1 ? (
+            <Link
+              href={`/movies?page=${page - 1}`}
+              className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold transition hover:border-white/50 hover:bg-white/5"
+            >
+              ← Anterior
+            </Link>
+          ) : (
+            <span />
+          )}
+          <span className="text-sm text-zinc-500">Página {page}</span>
+          {hasNext ? (
+            <Link
+              href={`/movies?page=${page + 1}`}
+              className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold transition hover:border-white/50 hover:bg-white/5"
+            >
+              Siguiente →
+            </Link>
+          ) : (
+            <span />
+          )}
       </main>
       </div>
   );

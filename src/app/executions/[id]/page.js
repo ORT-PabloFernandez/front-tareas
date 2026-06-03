@@ -73,7 +73,63 @@ export default function ExecutionPage() {
                 <div>
                     <p><strong>Email del Colaborador:</strong> {execution.collaboratorEmail}</p>
                 </div>
+                <div>
+                    <p><strong>Fecha de Inicio:</strong> {new Date(execution.startedAt).toLocaleString()}</p>
+                </div>
+                <div>
+                    <p><strong>Fecha de Finalización:</strong> {execution.completedAt ? new Date(execution.completedAt).toLocaleString() : "N/A"}</p>
+                </div>
+                <div>
+                    <p><strong>Revisado:</strong> {execution.reviewed ? "Sí" : "No"}</p>
+                </div>
+                <div>
+                    <p><strong>Fecha de Creacion:</strong> {execution.createdAt ? new Date(execution.createdAt).toLocaleString() : "N/A"}</p>
+                </div>
+                <div>
+                    <p><strong>Ultimo Cambio:</strong> {execution.updatedAt ? new Date(execution.updatedAt).toLocaleString() : "N/A"}</p>
+                </div>
             </main>
+            <div>
+                <h2>Respuestas:</h2>
+                <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-700">
+                <th className="text-left py-3">Pregunta</th>
+                <th className="text-left py-3">Respuesta</th>
+                <th className="text-left py-3">Válida</th>
+                <th className="text-left py-3">Completada</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {Object.entries(execution.responses).map(
+                ([questionId, response]) => (
+                  <tr
+                    key={questionId}
+                    className="border-b border-gray-800"
+                  >
+                    <td className="py-3">{questionId}</td>
+
+                    <td className="py-3">
+                      {String(response.value)}
+                    </td>
+
+                    <td className="py-3">
+                      {response.valid ? "✅" : "❌"}
+                    </td>
+
+                    <td className="py-3">
+                      {new Date(
+                        response.completedAt
+                      ).toLocaleString("es-AR")}
+                    </td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+            </div>
         </div>
+        
     );
 }

@@ -58,7 +58,6 @@ return (
                     {execution.checklistTitle}
                   </button>
                 </td>
-                        <td className="py-2 px-4 border-b">{execution.checklistTitle}</td>
                         <td className="py-2 px-4 border-b">{execution.status}</td>
                         <td className="py-2 px-4 border-b">{execution.collaboratorEmail}</td>
                         <td className="py-2 px-4 border-b">{new Date(execution.startedAt).toLocaleString()}</td>

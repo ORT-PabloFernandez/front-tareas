@@ -1,24 +1,47 @@
+"use client";
 import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
 const API_BASE = 'https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/executions';
 
 async function getExecution(id) {
-    console.log("Buscando ejecución:", id);
-  const res = await fetch(`${API_BASE}/${id}`, { next: { revalidate: 60 } });
+    const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/${id}`, { headers: { Authorization: `Bearer ${token}`,}, });
   console.log("Status:", res.status);
-
-  const text = await res.text();
-  console.log("Respuesta:", text);
 
   if (!res.ok) return null;
 
-  const result = JSON.parse(text);
+   const result = await res.json();
+    console.log("Result:", result);
   return result.data;
 }
 
-export default async function ExecutionPage({ params }) {
-    const { id } = await params;
-    const execution = await getExecution(id);
+export default function ExecutionPage() {
+    const { id } = useParams();
+    const [execution, setExecution] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadExecution() {
+      const data = await getExecution(id);
+
+      setExecution(data);
+      setLoading(false);
+    }
+
+    if (id) {
+      loadExecution();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="p-6 text-white">
+        <h1>Cargando ejecución...</h1>
+      </div>
+    );
+  }
     if (!execution) {
         return (
             <div>

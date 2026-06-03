@@ -5,7 +5,8 @@ const API_BASE = 'https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsite
 async function getExecution(id) {
   const res = await fetch(`${API_BASE}/${id}`, { next: { revalidate: 60 } });
   if (!res.ok) return null;
-  return res.json();
+  const result = await res.json();
+  return result.data;
 }
 
 export default async function ExecutionPage({ params }) {
@@ -29,9 +30,7 @@ export default async function ExecutionPage({ params }) {
         <div>
             <main>
                 <Link href="/executions">Volver al listado de ejecuciones</Link>
-                <div>
-                    <h1>Ejecución {execution.id}</h1>
-                </div>
+                <h1>Detalle de Ejecución</h1>
                 <div>
                     <p><strong>Título del Checklist:</strong> {execution.checklistTitle}</p>
                 </div>

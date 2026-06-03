@@ -6,13 +6,12 @@ import { useRouter } from "next/navigation";
 export default function ExecutionsTable({ executions }) {
   const [search, setSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
 const filteredExecutions = executions.filter((e) => e.checklistTitle?.includes(search.toLowerCase()));
 
-const statusFilteredExecutions = selectedStatus ? filteredExecutions.filter((execution) => e.status === selectedStatus) : filteredExecutions;
+const statusFilteredExecutions = selectedStatus ? filteredExecutions.filter((execution) => execution.status === selectedStatus) : filteredExecutions;
 
 return (
     <div>

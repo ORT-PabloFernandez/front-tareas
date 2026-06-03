@@ -3,9 +3,16 @@ import Link from 'next/link';
 const API_BASE = 'https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/executions';
 
 async function getExecution(id) {
+    console.log("Buscando ejecución:", id);
   const res = await fetch(`${API_BASE}/${id}`, { next: { revalidate: 60 } });
+  console.log("Status:", res.status);
+
+  const text = await res.text();
+  console.log("Respuesta:", text);
+
   if (!res.ok) return null;
-  const result = await res.json();
+
+  const result = JSON.parse(text);
   return result.data;
 }
 

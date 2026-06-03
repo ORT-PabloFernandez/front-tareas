@@ -18,7 +18,7 @@ async function getExecutions(page) {
   console.log("BODY:", body);
 
   if (!res.ok) {
-    throw new Error(`Error ${res.status}`);
+    throw new Error("No se pudo obtener el listado de ejecuciones");
   }
 
   return JSON.parse(body);

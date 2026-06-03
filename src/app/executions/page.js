@@ -41,20 +41,26 @@ export default function ExecutionsPage() {
   const page = Math.max(1, parseInt(pageParam) || 1);
   const [executions, setExecutions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null);
+  const [email, setEmail] = useState(null);
   const [emailFilter, setEmailFilter] = useState("");
-  const role = getRole();
+
+  useEffect(() => {
+    setRole(localStorage.getItem("role"));
+    setEmail(localStorage.getItem("email"));
+  }, []);
 
   useEffect(() => {
     async function loadExecutions() {
       try {
-        let email = null;
+        let collaboratorEmail = null;
         if (role === "collaborator") {
-          email = getEmail();
+          collaboratorEmail = email;
         }
         if (role === "supervisor" && emailFilter) {
         collaboratorEmail = emailFilter;
       }
-        const data = await getExecutions(page, email);
+        const data = await getExecutions(page, collaboratorEmail);
         setExecutions(data.data);
         console.log("DATA:", data);
       } catch (error) {
@@ -65,7 +71,7 @@ export default function ExecutionsPage() {
     }
 
     loadExecutions();
-  }, [page, role]);
+  }, [page, role, email, emailFilter]);
   if (loading) {
     return (
       <div className="p-6 text-white">

@@ -10,7 +10,7 @@ async function getExecution(id) {
 }
 
 export default async function ExecutionPage({ params }) {
-    const { id } = params;
+    const { id } = await params;
     const execution = await getExecution(id);
     if (!execution) {
         return (

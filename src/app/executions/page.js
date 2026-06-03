@@ -10,7 +10,7 @@ const LIMIT = 20;
 
 async function getExecutions(page, email) {
   const token = localStorage.getItem("token");
-  const url = `${EXECUTIONS_ENDPOINT}?page=${page}&limit=${LIMIT}`;
+  let url = `${EXECUTIONS_ENDPOINT}?page=${page}&limit=${LIMIT}`;
   if (email) {
     url += `&collaboratorEmail=${email}`;
   }

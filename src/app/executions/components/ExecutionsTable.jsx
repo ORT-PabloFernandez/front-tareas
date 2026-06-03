@@ -9,7 +9,7 @@ export default function ExecutionsTable({ executions }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-const filteredExecutions = executions.filter((e) => e.checklistTitle?.includes(search.toLowerCase()));
+const filteredExecutions = executions.filter((e) => e.checklistTitle?.toLowerCase().includes(search.toLowerCase()));
 
 const statusFilteredExecutions = selectedStatus ? filteredExecutions.filter((execution) => execution.status === selectedStatus) : filteredExecutions;
 
@@ -34,15 +34,15 @@ return (
             <option value="reviewed">Revisado</option>
             </select>
     </div>
-    <div>
-        <table className="min-w-full bg-white">
+    <div className="overflow-x-auto rounded-xl border border-gray-800 shadow-lg">
+        <table className="min-w-full bg-gray-900 text-gray-100">
             <thead>
-                <tr>
+                <tr className="bg-gray-800 text-gray-300 uppercase text-sm">
                     <th className="py-2 px-4 border-b">Título del Checklist</th>
-                    <th className="py-2 px-4 border-b">ID</th>
-                    <th className="py-2 px-4 border-b">ID de asignación</th>
                     <th className="py-2 px-4 border-b">Estado</th>
                     <th className="py-2 px-4 border-b">Email de Colaborador</th>
+                    <th className="py-2 px-4 border-b">Inicio</th>
+                    <th className="py-2 px-4 border-b">Finalización</th>
                     </tr>
             </thead>
             <tbody>
@@ -58,10 +58,11 @@ return (
                     {execution.checklistTitle}
                   </button>
                 </td>
-                        <td className="py-2 px-4 border-b">{execution.id}</td>
-                        <td className="py-2 px-4 border-b">{execution.assignmentId}</td>
+                        <td className="py-2 px-4 border-b">{execution.checklistTitle}</td>
                         <td className="py-2 px-4 border-b">{execution.status}</td>
                         <td className="py-2 px-4 border-b">{execution.collaboratorEmail}</td>
+                        <td className="py-2 px-4 border-b">{new Date(execution.startedAt).toLocaleString()}</td>
+                        <td className="py-2 px-4 border-b">{execution.completedAt ? new Date(execution.completedAt).toLocaleString() : "N/A"}</td>
                     </tr>
                 ))}
             </tbody>

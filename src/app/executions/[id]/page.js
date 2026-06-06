@@ -51,10 +51,70 @@ export default function ExecutionPage() {
         );
     }
 
-    function toggleReviewed() {
+    async function toggleReviewed() {
+
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        status: "reviewed",
+      }),
+    });
+
+      if (!res.ok) {
+        throw new Error("Error al actualizar el estado de revisión");
+      }
+
+      const updatedExecution = await res.json();
+      setExecution(updatedExecution.data);
 
         
     }
+
+  async function saveProgress(id, responses, notes) {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_BASE}/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      responses,
+      notes,
+    }),
+  });
+
+  return await res.json();
+}
+
+async function completeExecution(id, responses, notes) {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(
+    `${API_BASE}/${id}/complete`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        responses,
+        notes,
+      }),
+    }
+  );
+
+  return await res.json();
+}
+
+    
 
     return (
         <div>
@@ -128,6 +188,33 @@ export default function ExecutionPage() {
               )}
             </tbody>
           </table>
+            </div>
+            <div>
+              {role == "admin" && execution.status !== "reviewed" && (
+                <button
+                  onClick={toggleReviewed}
+                >
+                  Marcar como revisado
+                </button>
+              )}
+            </div>
+            <div>
+              {role == "supervisor" && execution.status !== "reviewed" && (
+                <button
+                  onClick={toggleReviewed}
+                >
+                  Marcar como revisado
+                </button>
+              )}
+            </div>
+            <div>
+              {role == "collaborator" && execution.status !== "completed" && (
+                <button
+                  onClick={() => completeExecution(id, execution.responses, execution.notes)}
+                >
+                  Marcar como completado
+                </button>
+              )}
             </div>
         </div>
         

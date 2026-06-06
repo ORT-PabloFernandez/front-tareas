@@ -79,6 +79,7 @@ export default function ExecutionsPage() {
       </div>
     );
   }
+
   const hasNext = executions.length === LIMIT;
 
   return (
@@ -97,6 +98,12 @@ export default function ExecutionsPage() {
           placeholder="Filtrar por email"
           className="border p-2 rounded"
         />
+        <button
+          onClick={() => setEmailFilter("")}
+          className="ml-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+        >
+          Limpiar filtro
+        </button>
       </div>
     )}
       <ExecutionsTable executions={executions} />

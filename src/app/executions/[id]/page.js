@@ -142,7 +142,7 @@ async function completeExecution(id, responses, notes) {
                     <p><strong>Fecha de Finalización:</strong> {execution.completedAt ? new Date(execution.completedAt).toLocaleString() : "N/A"}</p>
                 </div>
                 <div>
-                    <p><strong>Revisado:</strong> {execution.reviewed ? "Sí" : "No"}</p>
+                    <p><strong>Revisado:</strong> {execution.status === "reviewed" ? "Sí" : "No"}</p>
                 </div>
                 <div>
                     <p><strong>Fecha de Creacion:</strong> {execution.createdAt ? new Date(execution.createdAt).toLocaleString() : "N/A"}</p>

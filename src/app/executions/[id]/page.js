@@ -22,6 +22,8 @@ export default function ExecutionPage() {
     const [execution, setExecution] = useState(null);
   const [loading, setLoading] = useState(true);
     const [role, setRole] = useState(null);
+    const [responses, setResponses] = useState({});
+    const [notes, setNotes] = useState("");
 
   useEffect(() => {
     setRole(localStorage.getItem("role"));
@@ -29,6 +31,7 @@ export default function ExecutionPage() {
       const data = await getExecution(id);
 
       setExecution(data);
+      setResponses(data.responses || {});
       setLoading(false);
     }
 
@@ -53,7 +56,7 @@ export default function ExecutionPage() {
         );
     }
 
-    async function toggleReviewed() {
+    async function toggleReviewed(id) {
 
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE}/${id}`, {
@@ -77,6 +80,16 @@ export default function ExecutionPage() {
         
     }
 
+    async function handleReview() {
+    try {
+      const updated = await toggleReviewed(id);
+
+      setExecution(updated.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async function saveProgress(id, responses, notes) {
   const token = localStorage.getItem("token");
 
@@ -94,6 +107,20 @@ export default function ExecutionPage() {
 
   return await res.json();
 }
+
+async function handleSaveProgress() {
+    try {
+      const updated = await saveProgress(
+        id,
+        responses,
+        notes
+      );
+
+      setExecution(updated.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
 async function completeExecution(id, responses, notes) {
   const token = localStorage.getItem("token");
@@ -115,6 +142,20 @@ async function completeExecution(id, responses, notes) {
 
   return await res.json();
 }
+
+async function handleComplete() {
+    try {
+      const updated = await completeExecution(
+        id,
+        responses,
+        notes
+      );
+
+      setExecution(updated.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
     
 
@@ -192,27 +233,43 @@ async function completeExecution(id, responses, notes) {
           </table>
             </div>
             <div>
-              {role == "admin" && execution.status !== "reviewed" && (
+              {role == "collaborator" && execution.status === "in_progress" && (
+                <>
+                <textarea
+                  placeholder="Agregar notas..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
                 <button
-                  onClick={toggleReviewed}
+                  onClick={handleSaveProgress}
+                >
+                  Guardar Progreso
+                </button>
+                </>
+              )}
+            </div>
+            <div>
+              {role == "admin" && execution.status === "completed" && (
+                <button
+                 onClick={handleReview}
                 >
                   Marcar como revisado
                 </button>
               )}
             </div>
             <div>
-              {role == "supervisor" && execution.status !== "reviewed" && (
+              {role == "supervisor" && execution.status === "completed" && (
                 <button
-                  onClick={toggleReviewed}
+                  onClick={handleReview}
                 >
                   Marcar como revisado
                 </button>
               )}
             </div>
             <div>
-              {role == "collaborator" && execution.status !== "completed" && (
+              {role == "collaborator" && execution.status === "in_progress" && (
                 <button
-                  onClick={() => completeExecution(id, execution.responses, execution.notes)}
+                  onClick={handleComplete}
                 >
                   Marcar como completado
                 </button>

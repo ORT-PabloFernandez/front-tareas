@@ -160,40 +160,46 @@ async function handleComplete() {
     
 
     return (
-        <div>
+        <div className="min-h-screen bg-black text-white p-8">
+          <div className="max-w-5xl mx-auto">
             <main>
-                <Link href="/executions">Volver al listado de ejecuciones</Link>
-                <h1>Detalle de Ejecución</h1>
-                <div>
-                    <p><strong>Título del Checklist:</strong> {execution.checklistTitle}</p>
+                <Link href="/executions" className="text-blue-400 hover:text-blue-300 mb-6 inline-block">Volver al listado de ejecuciones</Link>
+                <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6 mb-8 shadow-lg">
+                <h1 className="text-3xl font-bold mb-6">Detalle de Ejecución</h1>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-zinc-800 rounded-lg p-4">
+                    <p className="text-zinc-400 text-sm"><strong>Título del Checklist:</strong> {execution.checklistTitle}</p>
                 </div>
-                <div>
-                    <p><strong>ID de Asignación:</strong> {execution.assignmentId}</p>
+                <div className="bg-zinc-800 rounded-lg p-4">
+                    <p className="text-zinc-400 text-sm"><strong>ID de Asignación:</strong> {execution.assignmentId}</p>
                 </div>
-                <div>
-                    <p><strong>Estado:</strong> {execution.status}</p>
+                <div className="bg-zinc-800 rounded-lg p-4">
+                    <p className="text-zinc-400 text-sm"><strong>Estado:</strong> {execution.status}</p>
                 </div>
-                <div>
-                    <p><strong>Email del Colaborador:</strong> {execution.collaboratorEmail}</p>
+                <div className="bg-zinc-800 rounded-lg p-4">
+                    <p className="text-zinc-400 text-sm"><strong>Email del Colaborador:</strong> {execution.collaboratorEmail}</p>
                 </div>
-                <div>
-                    <p><strong>Fecha de Inicio:</strong> {new Date(execution.startedAt).toLocaleString()}</p>
+                <div className="bg-zinc-800 rounded-lg p-4">
+                    <p className="text-zinc-400 text-sm"><strong>Fecha de Inicio:</strong> {new Date(execution.startedAt).toLocaleString()}</p>
                 </div>
-                <div>
-                    <p><strong>Fecha de Finalización:</strong> {execution.completedAt ? new Date(execution.completedAt).toLocaleString() : "N/A"}</p>
+                <div className="bg-zinc-800 rounded-lg p-4">
+                    <p className="text-zinc-400 text-sm"><strong>Fecha de Finalización:</strong> {execution.completedAt ? new Date(execution.completedAt).toLocaleString() : "N/A"}</p>
                 </div>
-                <div>
-                    <p><strong>Revisado:</strong> {execution.status === "reviewed" ? "Sí" : "No"}</p>
+                <div className="bg-zinc-800 rounded-lg p-4">
+                    <p className="text-zinc-400 text-sm"><strong>Revisado:</strong> {execution.status === "reviewed" ? "Sí" : "No"}</p>
                 </div>
-                <div>
-                    <p><strong>Fecha de Creacion:</strong> {execution.createdAt ? new Date(execution.createdAt).toLocaleString() : "N/A"}</p>
+                <div className="bg-zinc-800 rounded-lg p-4">
+                    <p className="text-zinc-400 text-sm"><strong>Fecha de Creacion:</strong> {execution.createdAt ? new Date(execution.createdAt).toLocaleString() : "N/A"}</p>
                 </div>
-                <div>
-                    <p><strong>Ultimo Cambio:</strong> {execution.updatedAt ? new Date(execution.updatedAt).toLocaleString() : "N/A"}</p>
+                <div className="bg-zinc-800 rounded-lg p-4">
+                    <p className="text-zinc-400 text-sm"><strong>Ultimo Cambio:</strong> {execution.updatedAt ? new Date(execution.updatedAt).toLocaleString() : "N/A"}</p>
+                </div>
+                </div>
                 </div>
             </main>
-            <div>
+            <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6 mb-8">
                 <h2>Respuestas:</h2>
+                <div className="overflow-x-auto">
                 <table className="w-full">
             <thead>
               <tr className="border-b border-gray-700">
@@ -232,9 +238,14 @@ async function handleComplete() {
             </tbody>
           </table>
             </div>
+            </div>
             <div>
               {role == "collaborator" && execution.status === "in_progress" && (
                 <>
+                <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6 mb-6">
+                <h3 className="text-xl font-semibold mb-4">
+                 Notas
+                </h3>
                 <textarea
                   placeholder="Agregar notas..."
                   value={notes}
@@ -242,9 +253,11 @@ async function handleComplete() {
                 />
                 <button
                   onClick={handleSaveProgress}
+                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium"
                 >
                   Guardar Progreso
                 </button>
+                </div>
                 </>
               )}
             </div>
@@ -257,10 +270,11 @@ async function handleComplete() {
                 </button>
               )}
             </div>
-            <div>
-              {role == "supervisor" && execution.status === "completed" && (
+            <div className="flex gap-4 flex-wrap">
+              {role == "supervisor" && execution.status !== "reviewed" && (
                 <button
                   onClick={handleReview}
+                  className="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium"
                 >
                   Marcar como revisado
                 </button>
@@ -270,11 +284,13 @@ async function handleComplete() {
               {role == "collaborator" && execution.status === "in_progress" && (
                 <button
                   onClick={handleComplete}
+                  className="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium"
                 >
                   Marcar como completado
                 </button>
               )}
             </div>
+        </div>
         </div>
         
     );

@@ -58,6 +58,14 @@ export default function AssignmentsPage() {
 
     useEffect(() => {
         const currentRole = localStorage.getItem("role");
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setError("Error de autenticación. Por favor, iniciar sesión."); 
+            setLoading(false);
+            return;
+        }
+        
         setRole(currentRole);
 
         async function loadAssignments() {

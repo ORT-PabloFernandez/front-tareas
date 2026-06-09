@@ -83,10 +83,10 @@ export default function HeaderNew() {
                 <Link href="/templates" className={styles["header-new__nav-link"]}>
                   Templates
                 </Link>
-                <Link href="/asignaciones-admin" className={styles["header-new__nav-link"]}>
+                <Link href="/assignments" className={styles["header-new__nav-link"]}>
                   Asignaciones
                 </Link>
-                <Link href="/ejecuciones-aprobar" className={styles["header-new__nav-link"]}>
+                <Link href="/executions" className={styles["header-new__nav-link"]}>
                   Ejecuciones a Aprobar
                 </Link>
               </>

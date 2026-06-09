@@ -14,8 +14,19 @@ export default function Usuario() {
   useEffect(() => {
     async function obtenerUsuarios() {
       try {
-        const token = localStorage.getItem("token");
+        let token = localStorage.getItem("token");
         
+        if (!token) {
+          throw new Error("No se encontró el token. Por favor, inicia sesión nuevamente.");
+        }
+
+        // Limpieza: Si el token guardado ya traía la palabra "Bearer", se la quitamos 
+        // para manejarla nosotros limpiamente de forma estricta.
+        if (token.startsWith("Bearer ")) {
+          token = token.slice(7).trim();
+        }
+        
+        // Hacemos la petición enviando el formato estándar "Bearer TOKEN"
         const res = await fetch(`${API_URL}/api/users`, {
           method: "GET",
           headers: {
@@ -24,14 +35,41 @@ export default function Usuario() {
           }
         });
 
+        // Si falla con el formato estándar (401), intentamos un SEGUNDO intento 
+        // enviando SOLO el token (sin la palabra Bearer), por si tu backend está configurado así.
+        if (res.status === 401) {
+          console.warn("Fallo con 'Bearer', intentando enviar el token plano...");
+          const resSegundoIntento = await fetch(`${API_URL}/api/users`, {
+            method: "GET",
+            headers: {
+              "Authorization": token, // Token limpio sin prefijos
+              "Content-Type": "application/json"
+            }
+          });
+
+          if (resSegundoIntento.ok) {
+            const respuestaData = await resSegundoIntento.json();
+            setUsuarios(respuestaData.data || respuestaData || []);
+            return; // Salimos con éxito
+          }
+        }
+
+        // Si no fue un problema de formato alternativo y sigue fallando:
         if (!res.ok) {
-          throw new Error("No se pudo obtener la lista de usuarios");
+          let mensajeBackend = "";
+          try {
+            const errorData = await res.json();
+            mensajeBackend = errorData.message || JSON.stringify(errorData);
+          } catch {
+            mensajeBackend = "El servidor denegó el acceso.";
+          }
+          throw new Error(`Código ${res.status}: ${mensajeBackend}`);
         }
 
         const respuestaData = await res.json();
-        // Guardamos los usuarios (manejando el formato de éxito del README)
         setUsuarios(respuestaData.data || respuestaData || []);
       } catch (err) {
+        console.error("Error al obtener la lista de usuarios:", err);
         setError(err.message);
       } finally {
         setCargando(false);
@@ -44,13 +82,12 @@ export default function Usuario() {
   // Filtrado en tiempo real por nombre, username, email o ID
   const usuariosFiltrados = usuarios.filter((user) => {
     const nombre = user.nombre?.toLowerCase() || "";
-    const username = user.username?.toLowerCase() || ""; // <-- Agregado para filtrar por username también
+    const username = user.username?.toLowerCase() || ""; 
     const email = user.email?.toLowerCase() || "";
     const idUnico = user._id?.toLowerCase() || ""; 
     
     const termino = busqueda.toLowerCase();
     
-    // Retorna verdadero si coincide con cualquiera de los campos
     return (
       nombre.includes(termino) || 
       username.includes(termino) || 
@@ -91,12 +128,10 @@ export default function Usuario() {
               usuariosFiltrados.map((user) => (
                 <tr key={user._id} style={estilos.filaTabla}>
                   <td style={estilos.celda}>
-                    {/* Vinculamos el nombre a la ruta dinámica /user/id_del_usuario */}
                     <Link 
                       href={`/user/${user._id}`} 
                       style={{ color: "#2b4bee", textDecoration: "none", fontWeight: "600" }}
                     >
-                      {/* Muestra primero username, si no nombre, si no formatea el email */}
                       {user.username || user.nombre || (user.email ? user.email.split("@")[0].replace(".", " ") : "Sin Nombre")}
                     </Link>
                   </td>
@@ -125,7 +160,6 @@ export default function Usuario() {
   );
 }
 
-// Estilos limpios y profesionales
 const estilos = {
   contenedor: { width: "100%", padding: "20px 0", marginTop: 16 },
   buscadorContenedor: { marginBottom: 20 },

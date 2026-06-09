@@ -8,82 +8,134 @@ import styles from "./HeaderNew.module.css";
 
 export default function HeaderNew() {
   const [usuario, setUsuario] = useState(null);
+  const [rol, setRol] = useState(null); 
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const nombre = localStorage.getItem("usuario");
-    if (token && nombre) {
-      setUsuario(nombre);
+    function revisarEstadoAuth() {
+      const token = localStorage.getItem("token");
+      const usuarioGuardado = localStorage.getItem("usuario");
+      const rolGuardado = localStorage.getItem("rol"); 
+
+      if (token && usuarioGuardado) {
+        setRol(rolGuardado ? rolGuardado.toLowerCase() : "colaborador");
+
+        if (usuarioGuardado.includes("@")) {
+          const nombreLimpio = usuarioGuardado.split("@")[0]; 
+          const nombreFormateado = nombreLimpio.replace(".", " "); 
+          setUsuario(nombreFormateado);
+        } else {
+          setUsuario(usuarioGuardado);
+        }
+      } else {
+        setUsuario(null);
+        setRol(null);
+      }
     }
+
+    revisarEstadoAuth();
+    window.addEventListener("cambioAuth", revisarEstadoAuth);
+
+    return () => {
+      window.removeEventListener("cambioAuth", revisarEstadoAuth);
+    };
   }, []);
 
   function cerrarSesion() {
     localStorage.removeItem("token");
     localStorage.removeItem("usuario");
+    localStorage.removeItem("rol"); 
     setUsuario(null);
-    router.push("/login");
+    setRol(null);
+    window.location.href = "/login";
   }
 
   return (
     <header className={styles["header-new"]}>
       <div className={styles["header-new__left"]}>
         <Link href="/" className={styles["header-new__logo"]}>
-  {/* Ponemos la imagen en lugar del 'span' de antes */}
-  <Image 
-    src="/logo-taskflow.png" 
-    alt="TaskFlow Logo"
-    width={160} 
-    height={50}  
-    priority 
-    style={{ width: 'auto', height: '42px', display: 'block' }}
-  />
-  <h2 className={styles["header-new__logo-text"]}>TaskFlow</h2>
-</Link>
+          <Image 
+            src="/logo-v2.png" 
+            alt="TaskFlow Logo"
+            width={70} 
+            height={70}  
+            priority 
+            style={{ 
+              width: '70px', 
+              height: '70px', 
+              display: 'block',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '2px solid #000000' 
+            }}
+          />
+          <h2 className={styles["header-new__logo-text"]}>TaskFlow</h2>
+        </Link>
 
-        <nav className={styles["header-new__nav"]}>
-          <Link
-            href="/"
-            className={`${styles["header-new__nav-link"]} ${styles["header-new__nav-link--active"]}`}
-          >
-            Directory
-          </Link>
-          <a href="#" className={styles["header-new__nav-link"]}>
-            Teams
-          </a>
-          <a href="#" className={styles["header-new__nav-link"]}>
-            Projects
-          </a>
-          <a href="#" className={styles["header-new__nav-link"]}>
-            Insights
-          </a>
-        </nav>
+        {/* 🛠️ CONDICIÓN 1: Solo muestra el menú de navegación si el usuario está logueado */}
+        {usuario && (
+          <nav className={styles["header-new__nav"]}>
+            {rol === "admin" || rol === "supervisor" ? (
+              <>
+                <Link href="/user" className={styles["header-new__nav-link"]}>
+                  Usuarios
+                </Link>
+                <Link href="/templates" className={styles["header-new__nav-link"]}>
+                  Templates
+                </Link>
+                <Link href="/asignaciones-admin" className={styles["header-new__nav-link"]}>
+                  Asignaciones
+                </Link>
+                <Link href="/ejecuciones-aprobar" className={styles["header-new__nav-link"]}>
+                  Ejecuciones a Aprobar
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/asignaciones" className={styles["header-new__nav-link"]}>
+                  Mis Asignaciones
+                </Link>
+                <Link href="/historial" className={styles["header-new__nav-link"]}>
+                  Mis Ejecuciones
+                </Link>
+              </>
+            )}
+          </nav>
+        )}
       </div>
 
       <div className={styles["header-new__right"]}>
-        <div className={styles["header-new__search"]}>
-          <span className={`material-symbols-outlined ${styles["header-new__search-icon"]}`}>
-            search
-          </span>
-          <input
-            className={styles["header-new__search-input"]}
-            placeholder="Find a team member..."
-            type="text"
-          />
-        </div>
+        {/* 🛠️ CONDICIÓN 2: Solo muestra el buscador y las notificaciones si el usuario inició sesión */}
+        {usuario && (
+          <>
+            <div className={styles["header-new__search"]}>
+              <span className={`material-symbols-outlined ${styles["header-new__search-icon"]}`}>
+                search
+              </span>
+              <input
+                className={styles["header-new__search-input"]}
+                placeholder="Buscar..."
+                type="text"
+              />
+            </div>
 
-        <div className={styles["header-new__actions"]}>
-          <button className={styles["header-new__action-btn"]}>
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
-          <button className={styles["header-new__action-btn"]}>
-            <span className="material-symbols-outlined">settings</span>
-          </button>
-        </div>
+            <div className={styles["header-new__actions"]}>
+              <button className={styles["header-new__action-btn"]}>
+                <span className="material-symbols-outlined">notifications</span>
+              </button>
+              <button className={styles["header-new__action-btn"]}>
+                <span className="material-symbols-outlined">settings</span>
+              </button>
+            </div>
+          </>
+        )}
 
+        {/* BLOQUE DE USUARIO / LOGIN */}
         {usuario ? (
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ color: "#334155", fontSize: 14 }}>Hola, {usuario}</span>
+            <span style={{ color: "#334155", fontSize: 14, textTransform: "capitalize" }}>
+              Hola, {usuario}
+            </span>
             <button
               onClick={cerrarSesion}
               style={{
@@ -98,6 +150,12 @@ export default function HeaderNew() {
             >
               Cerrar sesión
             </button>
+            <img
+              className={styles["header-new__avatar"]}
+              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60"
+              alt="Profile picture"
+              style={{ width: '35px', height: '35px', borderRadius: '50%' }}
+            />
           </div>
         ) : (
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -109,12 +167,6 @@ export default function HeaderNew() {
             </Link>
           </div>
         )}
-
-        <img
-          className={styles["header-new__avatar"]}
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1rTaRr9kGD3A_1xu71HkvhhqppJ0W3G3robgL9hDj7iCGqM3NU_5IFXSsVsQwUcDs_WdsoWWCkEiEu2CqE5RplLM4QeMAo234mhnfarwYyRVtXbAOXTkEBMshHBHCYXcsWj-yHtmhZFPnW4PdDx2a-Txr5_xrACQj33x8Ho__d53OddV0Tovu4sNV2NRU_XYwkhCaP1qdNTBg6mvktQ9KsaN-RrPpoWayuZD01MQVvZShuHbKm1GM59dFX7fZvahHpBp7Tt_U-X0"
-          alt="Profile picture"
-        />
       </div>
     </header>
   );

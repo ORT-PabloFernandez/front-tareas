@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link"
 
+import AssignmentsTable from './components/AssignmentsTable';
+
 const ASSIGNMENTS_ENDPOINT = "https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/assignments";
 
 async function getMyAssignments() {
@@ -65,7 +67,7 @@ export default function AssignmentsPage() {
             setLoading(false);
             return;
         }
-        
+
         setRole(currentRole);
 
         async function loadAssignments() {
@@ -127,7 +129,7 @@ export default function AssignmentsPage() {
                     <p className="text-zinc-400 mb-4">
                         Se cargaron {assignments.length} asignaciones.
                     </p>
-                    {/* <AssignmentsTable assignments={assignments} /> */}
+                    <AssignmentsTable assignments={assignments} />
                 </div>
             </main>
         </div>

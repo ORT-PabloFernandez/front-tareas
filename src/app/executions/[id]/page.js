@@ -26,7 +26,7 @@ export default function ExecutionPage() {
     const [notes, setNotes] = useState("");
 
   useEffect(() => {
-    setRole(localStorage.getItem("role"));
+    setRole(localStorage.getItem("rol"));
     async function loadExecution() {
       const data = await getExecution(id);
 

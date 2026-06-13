@@ -28,7 +28,7 @@ async function getExecutions(page, email) {
 }
 
 export function getRole() {
-  return localStorage.getItem("role");
+  return localStorage.getItem("rol");
 }
 
 export function getEmail() {
@@ -46,7 +46,7 @@ export default function ExecutionsPage() {
   const [emailFilter, setEmailFilter] = useState("");
 
   useEffect(() => {
-    setRole(localStorage.getItem("role"));
+    setRole(localStorage.getItem("rol"));
     setEmail(localStorage.getItem("email"));
   }, []);
 

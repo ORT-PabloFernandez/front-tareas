@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 
-export default function FillExecution({ params }) {
+export default function FillExecution({ params: paramsPromise }) {
+  const params = use(paramsPromise);
   const [execution, setExecution] = useState(null);
   const [responses, setResponses] = useState({});
 

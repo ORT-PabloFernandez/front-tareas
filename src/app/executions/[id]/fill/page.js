@@ -18,23 +18,30 @@ export default function FillExecution() {
 
   useEffect(() => {
     const loadData = async () => {
-      const token = localStorage.getItem("token");
-      const executionRes = await fetch(`${API_BASE}/${id}`, { headers: { Authorization: `Bearer ${token}`,}, });
+      try {
+        const token = localStorage.getItem("token");
+        
+        const executionRes = await fetch(`${API_BASE}/${id}`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+        const executionData = await executionRes.json();
+        setExecution(executionData);
 
-      const executionData = await executionRes.json();
+        const assignmentRes = await fetch(`https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/assignments/${executionData.assignmentId}`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+        const assignmentData = await assignmentRes.json();
+        setAssignment(assignmentData); 
 
-      setExecution(executionData);
+        const checklistRes = await fetch(`https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/checklists/${assignmentData.checklistId}`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+        const checklistData = await checklistRes.json();
+        console.log("Datos del Assignment:", assignmentData);
+        console.log("Datos del Checklist desde Azure:", checklistData);
+        setChecklist(checklistData);
 
-      const assignmentRes = await fetch(`https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/assignments/${executionData.assignmentId}`, { headers: { Authorization: `Bearer ${token}`,}, });
-      const assignmentData = await assignmentRes.json();
-      setAssignment(assignmentData);
-
-      const checklistRes = await fetch(`https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/checklists/${assignmentData.checklistId}`, { headers: { Authorization: `Bearer ${token}`,}, });
-      const checklistData = await checklistRes.json();
-      setChecklist(checklistData);
-    };
-
-    const initialResponses = {};
+        const initialResponses = {};
         checklistData.items.forEach(item => {
           initialResponses[item.id] = {
             value: item.type === "checkbox" ? false : "",
@@ -43,10 +50,16 @@ export default function FillExecution() {
             completedAt: null
           };
         });
+        
         setResponses(initialResponses);
         setLoading(false);
+      } catch (error) {
+        console.error("Error cargando los datos:", error);
+        setLoading(false);
+      }
+    };
 
-    loadData();
+    if (id) loadData();
   }, [id]);
 
   const handleValueChange = (itemId, value) => {
@@ -61,14 +74,14 @@ export default function FillExecution() {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
 
     e.preventDefault();
 
     const updatedExecution = {
       ...execution,
       responses: responses,
-      status: "completed", // Transición de estado automática
+      status: "completed", 
       completedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -83,13 +96,13 @@ export default function FillExecution() {
     router.push("/executions");
   };
 
-  if (!execution) return <div>Cargando...</div>;
+  if (loading) return <div className="text-white p-6 bg-gray-955 min-h-screen">Cargando formulario dinámico...</div>;
+  if (!execution || !checklist) return <div className="text-white p-6 bg-gray-955 min-h-screen">No se pudieron cargar los datos.</div>;
 
   return (
     <div className="min-h-screen bg-gray-950 py-10 px-4">
       <div className="max-w-2xl mx-auto p-6 bg-gray-900 text-white rounded-xl border border-gray-800 shadow-2xl">
         
-        {/* Cabecera del Formulario */}
         <div className="mb-6 border-b border-gray-800 pb-4">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase bg-yellow-950 text-yellow-400 px-2 py-0.5 rounded border border-yellow-800">
@@ -111,7 +124,6 @@ export default function FillExecution() {
           </div>
         </div>
 
-        {/* Formulario Dinámico */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-5">
             {checklist.items.map((item) => (
@@ -120,7 +132,6 @@ export default function FillExecution() {
                   {item.text} {item.required && <span className="text-red-500">*</span>}
                 </label>
 
-                {/* TIPO: TEXT */}
                 {item.type === "text" && (
                   <input
                     type="text"
@@ -132,7 +143,6 @@ export default function FillExecution() {
                   />
                 )}
 
-                {/* TIPO: NUMBER */}
                 {item.type === "number" && (
                   <input
                     type="number"
@@ -144,7 +154,6 @@ export default function FillExecution() {
                   />
                 )}
 
-                {/* TIPO: CHECKBOX */}
                 {item.type === "checkbox" && (
                   <div className="flex items-center gap-3 mt-1">
                     <input
@@ -160,7 +169,6 @@ export default function FillExecution() {
                   </div>
                 )}
 
-                {/* TIPO: SELECT */}
                 {item.type === "select" && (
                   <select
                     value={responses[item.id]?.value || ""}
@@ -180,7 +188,6 @@ export default function FillExecution() {
             ))}
           </div>
 
-          {/* Botones de acción inferior */}
           <div className="flex justify-end gap-4 pt-4 border-t border-gray-800">
             <button
               type="button"

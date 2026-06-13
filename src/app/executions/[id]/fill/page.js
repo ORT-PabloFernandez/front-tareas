@@ -27,6 +27,7 @@ export default function FillExecution() {
 
       const assignmentRes = await fetch(`https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/assignments/${executionData.assignmentId}`, { headers: { Authorization: `Bearer ${token}`,}, });
       const assignmentData = await assignmentRes.json();
+      setAssignment(assignmentData);
 
       const checklistRes = await fetch(`https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/checklists/${assignmentData.checklistId}`, { headers: { Authorization: `Bearer ${token}`,}, });
       const checklistData = await checklistRes.json();
@@ -48,7 +49,7 @@ export default function FillExecution() {
     loadData();
   }, [id]);
 
-  const handleResponseChange = (itemId, value) => {
+  const handleValueChange = (itemId, value) => {
     setResponses((prev) => ({
       ...prev,
       [itemId]: {
@@ -62,6 +63,8 @@ export default function FillExecution() {
 
   const handleSubmit = async () => {
 
+    e.preventDefault();
+
     const updatedExecution = {
       ...execution,
       responses: responses,
@@ -72,7 +75,7 @@ export default function FillExecution() {
     await fetch(`${API_BASE}/${id}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
       body: JSON.stringify(updatedExecution),
     });

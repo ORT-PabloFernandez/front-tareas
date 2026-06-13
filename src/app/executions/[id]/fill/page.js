@@ -9,6 +9,8 @@ export default function FillExecution() {
   const router = useRouter();
   const { id } = useParams();
   const [execution, setExecution] = useState(null);
+  const [assignment, setAssignment] = useState(null);
+  const [checklist, setChecklist] = useState(null);
   const [checklistItems, setChecklistItems] = useState([]);
   const [responses, setResponses] = useState({});
   const [loading, setLoading] = useState(true);
@@ -16,6 +18,7 @@ export default function FillExecution() {
 
   useEffect(() => {
     const loadData = async () => {
+      const token = localStorage.getItem("token");
       const executionRes = await fetch(`${API_BASE}/${id}`, { headers: { Authorization: `Bearer ${token}`,}, });
 
       const executionData = await executionRes.json();
@@ -27,13 +30,13 @@ export default function FillExecution() {
 
       const checklistRes = await fetch(`https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/checklists/${assignmentData.checklistId}`, { headers: { Authorization: `Bearer ${token}`,}, });
       const checklistData = await checklistRes.json();
-      setChecklistItems(checklistData.items);
+      setChecklist(checklistData);
     };
 
     const initialResponses = {};
-        checklistItems.forEach(item => {
+        checklistData.items.forEach(item => {
           initialResponses[item.id] = {
-            value: "",
+            value: item.type === "checkbox" ? false : "",
             valid: true,
             visible: true,
             completedAt: null

@@ -11,7 +11,7 @@ export default function ExecutionsTable({ executions }) {
   const [role, setRole] = useState(null);
 
   useEffect(() => {
-    setRole(localStorage.getItem("role"));
+    setRole(localStorage.getItem("rol"));
   }, []);
 
 const filteredExecutions = executions.filter((e) => e.checklistTitle?.toLowerCase().includes(search.toLowerCase()));

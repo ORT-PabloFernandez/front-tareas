@@ -44,15 +44,19 @@ export default function ExecutionsPage() {
   const [role, setRole] = useState(null);
   const [email, setEmail] = useState(null);
   const [emailFilter, setEmailFilter] = useState("");
+  const [isSessionReady, setIsSessionReady] = useState(false);
 
   useEffect(() => {
     setRole(localStorage.getItem("rol"));
     setEmail(localStorage.getItem("email"));
+    setIsSessionReady(true);
   }, []);
 
   useEffect(() => {
+    if (!isSessionReady) return;
     async function loadExecutions() {
       try {
+        setLoading(true);
         let collaboratorEmail = null;
         if (role === "collaborator") {
           collaboratorEmail = email;
@@ -71,8 +75,8 @@ export default function ExecutionsPage() {
     }
 
     loadExecutions();
-  }, [page, role, email, emailFilter]);
-  if (loading) {
+  }, [page, role, email, emailFilter, isSessionReady]);
+  if (!isSessionReady || loading) {
     return (
       <div className="p-6 text-white">
         <h1>Cargando ejecuciones...</h1>

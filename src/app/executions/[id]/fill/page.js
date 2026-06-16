@@ -33,23 +33,26 @@ export default function FillExecution() {
         const assignmentData = await assignmentRes.json();
         setAssignment(assignmentData); 
 
-        const checklistRes = await fetch(`https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/checklists/${assignmentData.checklistId}`, { 
+        const checklistRes = await fetch(`https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/checklists/6a15043255503bccecaf0291`, { 
           headers: { Authorization: `Bearer ${token}` } 
         });
         const checklistData = await checklistRes.json();
+        const checklistActual = Array.isArray(checklistData.data) ? checklistData.data[0] : checklistData;
         console.log("Datos del Assignment:", assignmentData);
         console.log("Datos del Checklist desde Azure:", checklistData);
-        setChecklist(checklistData);
+        setChecklist(checklistActual);
 
-        const initialResponses = {};
-        checklistData.items.forEach(item => {
+      const initialResponses = {};
+      if (checklistActual && checklistActual.items) {
+        checklistActual.items.forEach(item => {
           initialResponses[item.id] = {
-            value: item.type === "checkbox" ? false : "",
+            value: "",
             valid: true,
             visible: true,
             completedAt: null
           };
         });
+      }
         
         setResponses(initialResponses);
         setLoading(false);
@@ -85,45 +88,48 @@ export default function FillExecution() {
       completedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    await fetch(`${API_BASE}/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(updatedExecution),
-    });
+    try {
+      await fetch(`${API_BASE}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json", 
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedExecution),
+      });
 
-    router.push("/executions");
+      router.push("/executions");
+    } catch (error) {
+      console.error("Error al enviar la ejecución final:", error);
+    }
   };
 
   if (loading) return <div className="text-white p-6 bg-gray-955 min-h-screen">Cargando formulario dinámico...</div>;
-  if (!execution || !checklist) return <div className="text-white p-6 bg-gray-955 min-h-screen">No se pudieron cargar los datos.</div>;
+  if (!execution) return <div className="text-white p-6 bg-gray-955 min-h-screen">No se pudieron cargar los datos.</div>;
 
   return (
     <div className="min-h-screen bg-gray-950 py-10 px-4">
       <div className="max-w-2xl mx-auto p-6 bg-gray-900 text-white rounded-xl border border-gray-800 shadow-2xl">
         
+        {/* Cabecera del Formulario con Datos del Checklist Fijo */}
         <div className="mb-6 border-b border-gray-800 pb-4">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase bg-yellow-950 text-yellow-400 px-2 py-0.5 rounded border border-yellow-800">
               {execution.status}
             </span>
-            {assignment?.priority && (
-              <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded border ${
-                assignment.priority === 'high' ? 'bg-red-950 text-red-400 border-red-800' : 'bg-gray-800 text-gray-400 border-gray-700'
-              }`}>
-                Prioridad: {assignment.priority}
-              </span>
-            )}
+            <span className="text-xs font-bold uppercase bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-800">
+              {checklist.category}
+            </span>
           </div>
           <h2 className="text-2xl font-bold mt-2 text-white">{checklist.title}</h2>
           <p className="text-sm text-gray-400 mt-1">{checklist.description}</p>
           <div className="text-xs text-gray-500 mt-3 flex flex-col gap-0.5">
-            <span>Colaborador: {execution.collaboratorEmail}</span>
-            <span>Asignación ID: {execution.assignmentId}</span>
+            <span>Colaborador en campo: {execution.collaboratorEmail || "Asignado"}</span>
+            <span>ID de ejecución: {execution._id}</span>
           </div>
         </div>
 
+        {/* Formulario Dinámico de Campos Fijos */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-5">
             {checklist.items.map((item) => (
@@ -132,6 +138,7 @@ export default function FillExecution() {
                   {item.text} {item.required && <span className="text-red-500">*</span>}
                 </label>
 
+                {/* TIPO: TEXT */}
                 {item.type === "text" && (
                   <input
                     type="text"
@@ -139,10 +146,11 @@ export default function FillExecution() {
                     onChange={(e) => handleValueChange(item.id, e.target.value)}
                     required={item.required}
                     className="w-full p-2.5 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-green-500 transition-colors"
-                    placeholder="Escribe tu respuesta aquí..."
+                    placeholder="Escribe las observaciones aquí..."
                   />
                 )}
 
+                {/* TIPO: NUMBER */}
                 {item.type === "number" && (
                   <input
                     type="number"
@@ -150,25 +158,11 @@ export default function FillExecution() {
                     onChange={(e) => handleValueChange(item.id, e.target.value === "" ? "" : Number(e.target.value))}
                     required={item.required}
                     className="w-full p-2.5 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-green-500 transition-colors"
-                    placeholder="Introduce un valor numérico..."
+                    placeholder="Introduce el valor numérico..."
                   />
                 )}
 
-                {item.type === "checkbox" && (
-                  <div className="flex items-center gap-3 mt-1">
-                    <input
-                      type="checkbox"
-                      id={`check-${item.id}`}
-                      checked={!!responses[item.id]?.value}
-                      onChange={(e) => handleValueChange(item.id, e.target.checked)}
-                      className="w-5 h-5 rounded bg-gray-700 border-gray-600 text-green-600 focus:ring-green-500 focus:ring-offset-gray-900"
-                    />
-                    <label htmlFor={`check-${item.id}`} className="text-sm text-gray-400 select-none cursor-pointer">
-                      Confirmar cumplimiento de este ítem
-                    </label>
-                  </div>
-                )}
-
+                {/* TIPO: SELECT */}
                 {item.type === "select" && (
                   <select
                     value={responses[item.id]?.value || ""}
@@ -188,6 +182,7 @@ export default function FillExecution() {
             ))}
           </div>
 
+          {/* Botones de acción inferior */}
           <div className="flex justify-end gap-4 pt-4 border-t border-gray-800">
             <button
               type="button"

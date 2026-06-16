@@ -33,6 +33,7 @@ export default function ExecutionPage() {
       setExecution(data);
       setResponses(data.responses || {});
       setLoading(false);
+      setNotes(data.notes || "");
     }
 
     if (id) {
@@ -56,35 +57,32 @@ export default function ExecutionPage() {
         );
     }
 
-    async function toggleReviewed(id) {
-
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        status: "reviewed",
-      }),
-    });
-
-      if (!res.ok) {
-        throw new Error("Error al actualizar el estado de revisión");
-      }
-
-      const updatedExecution = await res.json();
-      setExecution(updatedExecution.data);
-
-        
-    }
+    const prepareResponsesPayload = () => {
+    return Object.keys(responses).map((key) => ({
+      itemId: responses[key].itemId || key,
+      value: responses[key].value
+    }));
+  };
 
     async function handleReview() {
     try {
-      const updated = await toggleReviewed(id);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: "reviewed",
+        }),
+      });
 
-      setExecution(updated.data);
+      if (!res.ok) throw new Error("Error en la revisión");
+
+      alert("Ejecución marcada como revisada.");
+      const updated = await getExecution(id);
+      if (updated) setExecution(updated);
     } catch (error) {
       console.error(error);
     }
@@ -122,38 +120,32 @@ async function handleSaveProgress() {
     }
   }
 
-async function completeExecution(id, responses, notes) {
-  const token = localStorage.getItem("token");
-
-  const res = await fetch(
-    `${API_BASE}/${id}/complete`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        responses,
-        notes,
-      }),
-    }
-  );
-
-  return await res.json();
-}
-
 async function handleComplete() {
     try {
-      const updated = await completeExecution(
-        id,
-        responses,
-        notes
-      );
+      const token = localStorage.getItem("token");
+      const responsesArray = prepareResponsesPayload();
 
-      setExecution(updated.data);
+      const res = await fetch(`${API_BASE}/${id}/complete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          responses: responsesArray,
+          notes: notes || "Inspección completada sin anomalías detectadas"
+        }),
+      });
+
+      if (res.ok) {
+        alert("¡Inspección finalizada y cerrada con éxito!");
+        router.push("/executions");
+      } else {
+        const errData = await res.json();
+        alert(`Error al completar: ${errData.message || "Verificá los datos"}`);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error al completar la ejecución:", error);
     }
   }
 

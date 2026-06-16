@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 
 const API_BASE = 'https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/executions';
@@ -37,9 +37,11 @@ export default function FillExecution() {
           headers: { Authorization: `Bearer ${token}` } 
         });
         const checklistData = await checklistRes.json();
-        const checklistActual = Array.isArray(checklistData.data) ? checklistData.data[0] : checklistData;
-        console.log("Datos del Assignment:", assignmentData);
-        console.log("Datos del Checklist desde Azure:", checklistData);
+        let checklistActual = checklistData.data ? checklistData.data : checklistData;
+      if (Array.isArray(checklistActual)) {
+        checklistActual = checklistActual[0];
+      }
+        console.log("👉 CHECKLIST ENCONTRADA EN AZURE:", checklistActual);
         setChecklist(checklistActual);
 
       const initialResponses = {};
@@ -81,15 +83,20 @@ export default function FillExecution() {
 
     e.preventDefault();
 
+    const token = localStorage.getItem("token");
+
+    const responsesArray = Object.keys(responses).map((key) => ({
+    itemId: key,
+    value: responses[key].value,
+  }));
+
     const updatedExecution = {
-      ...execution,
-      responses: responses,
-      status: "completed", 
-      completedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      responses: responsesArray
     };
+
+    console.log("🚀 Enviando ejecución modificada y limpia a Azure:", updatedExecution);
     try {
-      await fetch(`${API_BASE}/${id}`, {
+      const response = await fetch(`${API_BASE}/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json", 
@@ -98,7 +105,18 @@ export default function FillExecution() {
         body: JSON.stringify(updatedExecution),
       });
 
+      console.log("Status Code del servidor:", response.status);
+    
+    const resData = await response.json();
+    console.log("💬 Respuesta del servidor Azure:", resData);
+
+    if (response.ok) {
+      alert("¡Inspección guardada con éxito!");
       router.push("/executions");
+    } else {
+      console.error("❌ El servidor rechazó los datos:", resData.message || resData.error);
+      alert(`Error al guardar: ${resData.message || "Revisá la consola"}`);
+    }
     } catch (error) {
       console.error("Error al enviar la ejecución final:", error);
     }
@@ -132,7 +150,7 @@ export default function FillExecution() {
         {/* Formulario Dinámico de Campos Fijos */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-5">
-            {checklist.items.map((item) => (
+            {checklist.items?.map((item) => (
               <div key={item.id} className="bg-gray-800/60 p-4 rounded-lg border border-gray-700/60 hover:border-gray-700 transition-colors">
                 <label className="block text-sm font-semibold mb-2 text-gray-200">
                   {item.text} {item.required && <span className="text-red-500">*</span>}

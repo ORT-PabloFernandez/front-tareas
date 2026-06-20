@@ -49,7 +49,7 @@ export default function ExecutionsPage() {
 
   useEffect(() => {
     setRole(localStorage.getItem("rol"));
-    setEmail(localStorage.getItem("email"));
+    setEmail(localStorage.getItem("usuario"));
     setIsSessionReady(true);
   }, []);
 

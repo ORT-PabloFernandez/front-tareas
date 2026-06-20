@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const API_BASE = 'https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/executions';
 
@@ -24,6 +25,7 @@ export default function ExecutionPage() {
     const [role, setRole] = useState(null);
     const [responses, setResponses] = useState({});
     const [notes, setNotes] = useState("");
+    const router = useRouter();
 
   useEffect(() => {
     setRole(localStorage.getItem("rol"));

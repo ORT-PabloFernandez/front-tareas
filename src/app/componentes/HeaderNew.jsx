@@ -18,7 +18,7 @@ export default function HeaderNew() {
       const rolGuardado = localStorage.getItem("rol"); 
 
       if (token && usuarioGuardado) {
-        setRol(rolGuardado ? rolGuardado.toLowerCase() : "colaborador");
+        setRol(rolGuardado ? rolGuardado.toLowerCase() : "collaborator");
 
         if (usuarioGuardado.includes("@")) {
           const nombreLimpio = usuarioGuardado.split("@")[0]; 
@@ -95,7 +95,7 @@ export default function HeaderNew() {
                 <Link href="/asignaciones" className={styles["header-new__nav-link"]}>
                   Mis Asignaciones
                 </Link>
-                <Link href="/historial" className={styles["header-new__nav-link"]}>
+                <Link href="/executions" className={styles["header-new__nav-link"]}>
                   Mis Ejecuciones
                 </Link>
               </>

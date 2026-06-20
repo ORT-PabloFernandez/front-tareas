@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const API_BASE = 'https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/executions';
 
@@ -24,6 +25,7 @@ export default function ExecutionPage() {
     const [role, setRole] = useState(null);
     const [responses, setResponses] = useState({});
     const [notes, setNotes] = useState("");
+    const router = useRouter();
 
   useEffect(() => {
     setRole(localStorage.getItem("rol"));
@@ -263,7 +265,7 @@ async function handleComplete() {
               )}
             </div>
             <div className="flex gap-4 flex-wrap">
-              {role == "supervisor" && execution.status !== "reviewed" && (
+              {role == "supervisor" && execution.status === "completed" && (
                 <button
                   onClick={handleReview}
                   className="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium"

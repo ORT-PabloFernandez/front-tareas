@@ -44,6 +44,7 @@ export default function ExecutionsPage() {
   const [role, setRole] = useState(null);
   const [email, setEmail] = useState(null);
   const [emailFilter, setEmailFilter] = useState("");
+  const [typedEmail, setTypedEmail] = useState("");
   const [isSessionReady, setIsSessionReady] = useState(false);
 
   useEffect(() => {
@@ -97,13 +98,21 @@ export default function ExecutionsPage() {
       <div className="mb-4">
         <input
           type="email"
-          value={emailFilter}
-          onChange={(e) => setEmailFilter(e.target.value)}
+          value={typedEmail}
+          onChange={(e) => setTypedEmail(e.target.value)}
           placeholder="Filtrar por email"
           className="border p-2 rounded"
         />
         <button
-          onClick={() => setEmailFilter("")}
+          onClick={() => setEmailFilter(typedEmail)}
+          className="ml-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+        >
+          Buscar
+        </button>
+        <button
+          onClick={() => {setTypedEmail("");
+          setEmailFilter("");
+          }}
           className="ml-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
         >
           Limpiar filtro

@@ -10,13 +10,13 @@ export default function FooterNew() {
   useEffect(() => {
     function revisarAuth() {
       const token = localStorage.getItem("token");
-      setEstaLogueado(!!token); // Convierte a true si hay token, false si no
+      setEstaLogueado(!!token); 
     }
 
-    // Revisamos al cargar
+    
     revisarAuth();
 
-    // Escuchamos el mismo evento que creamos para el Header
+    
     window.addEventListener("cambioAuth", revisarAuth);
 
     return () => {
@@ -37,7 +37,7 @@ export default function FooterNew() {
         <div className={styles["footer-new__links"]}>
           {estaLogueado ? (
             <>
-              {/* Enlaces útiles para cuando el usuario está trabajando */}
+              
               <a 
                 href="https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net" 
                 target="_blank" 
@@ -55,7 +55,7 @@ export default function FooterNew() {
             </>
           ) : (
             <>
-              {/* Enlaces más institucionales o legales para el Login/Register */}
+              
               <a href="#" className={styles["footer-new__link"]}>
                 Política de Privacidad
               </a>

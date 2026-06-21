@@ -20,13 +20,12 @@ export default function Usuario() {
           throw new Error("No se encontró el token. Por favor, inicia sesión nuevamente.");
         }
 
-        // Limpieza: Si el token guardado ya traía la palabra "Bearer", se la quitamos 
-        // para manejarla nosotros limpiamente de forma estricta.
+        
         if (token.startsWith("Bearer ")) {
           token = token.slice(7).trim();
         }
         
-        // Hacemos la petición enviando el formato estándar "Bearer TOKEN"
+        
         const res = await fetch(`${API_URL}/api/users`, {
           method: "GET",
           headers: {
@@ -35,14 +34,13 @@ export default function Usuario() {
           }
         });
 
-        // Si falla con el formato estándar (401), intentamos un SEGUNDO intento 
-        // enviando SOLO el token (sin la palabra Bearer), por si tu backend está configurado así.
+        
         if (res.status === 401) {
           console.warn("Fallo con 'Bearer', intentando enviar el token plano...");
           const resSegundoIntento = await fetch(`${API_URL}/api/users`, {
             method: "GET",
             headers: {
-              "Authorization": token, // Token limpio sin prefijos
+              "Authorization": token, 
               "Content-Type": "application/json"
             }
           });
@@ -50,11 +48,11 @@ export default function Usuario() {
           if (resSegundoIntento.ok) {
             const respuestaData = await resSegundoIntento.json();
             setUsuarios(respuestaData.data || respuestaData || []);
-            return; // Salimos con éxito
+            return; 
           }
         }
 
-        // Si no fue un problema de formato alternativo y sigue fallando:
+        
         if (!res.ok) {
           let mensajeBackend = "";
           try {
@@ -79,7 +77,7 @@ export default function Usuario() {
     obtenerUsuarios();
   }, []);
 
-  // Filtrado en tiempo real por nombre, username, email o ID
+ 
   const usuariosFiltrados = usuarios.filter((user) => {
     const nombre = user.nombre?.toLowerCase() || "";
     const username = user.username?.toLowerCase() || ""; 
@@ -101,7 +99,7 @@ export default function Usuario() {
 
   return (
     <div style={estilos.contenedor}>
-      {/* BARRA DE BÚSQUEDA */}
+      
       <div style={estilos.buscadorContenedor}>
         <input
           type="text"
@@ -112,7 +110,7 @@ export default function Usuario() {
         />
       </div>
 
-      {/* TABLA DE USUARIOS */}
+      
       <div style={estilos.tablaContenedor}>
         <table style={estilos.tabla}>
           <thead>

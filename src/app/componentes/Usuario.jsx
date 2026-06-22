@@ -23,7 +23,7 @@ export default function Usuario() {
           token = token.slice(7).trim();
         }
         
-        // Primer intento con Bearer estándar
+       
         const res = await fetch(`${API_URL}/api/users`, {
           method: "GET",
           headers: {
@@ -32,7 +32,7 @@ export default function Usuario() {
           }
         });
 
-        // Segundo intento con token plano si falla
+        
         if (res.status === 401) {
           console.warn("Fallo con 'Bearer', intentando enviar el token plano...");
           const resSegundoIntento = await fetch(`${API_URL}/api/users`, {
@@ -90,6 +90,6 @@ export default function Usuario() {
     );
   }
 
-  // Estructura idéntica al código del profesor: Pasa el array limpio como prop
+  
   return <UserList usuarios={usuarios} />;
 }

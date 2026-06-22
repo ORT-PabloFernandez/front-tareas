@@ -11,14 +11,12 @@ export default function HeaderNew() {
   const [usuario, setUsuario] = useState(null);
   const [rol, setRol] = useState(null); 
   
-  
   const [notificaciones, setNotificaciones] = useState([]);
   const [mostrarDropdown, setMostrarDropdown] = useState(false);
   const [cargandoNotif, setCargandoNotif] = useState(false);
 
   useEffect(() => {
     async function revisarEstadoAuth() {
-      
       const token = localStorage.getItem("token");
       const usuarioGuardado = localStorage.getItem("usuario");
       const rolGuardado = localStorage.getItem("rol"); 
@@ -27,7 +25,6 @@ export default function HeaderNew() {
         const rolFormateado = rolGuardado ? rolGuardado.toLowerCase() : "collaborator";
         setRol(rolFormateado);
 
-        
         if (usuarioGuardado.includes("@")) {
           const nombreLimpio = usuarioGuardado.split("@")[0]; 
           const nombreFormateado = nombreLimpio.replace(".", " "); 
@@ -36,24 +33,18 @@ export default function HeaderNew() {
           setUsuario(usuarioGuardado);
         }
 
-        
         await consultarAlertasDesdeAPI(rolFormateado, token);
 
       } else {
-        
         setUsuario(null);
         setRol(null);
         setNotificaciones([]);
       }
     }
 
-   
     revisarEstadoAuth();
 
-   
     window.addEventListener("cambioAuth", revisarEstadoAuth);
-    
-   
     window.addEventListener("pageshow", revisarEstadoAuth);
 
     return () => {
@@ -62,12 +53,10 @@ export default function HeaderNew() {
     };
   }, []);
 
-  
   async function consultarAlertasDesdeAPI(currentRol, token) {
     setCargandoNotif(true);
     try {
       if (currentRol === "admin" || currentRol === "supervisor") {
-        
         const res = await fetch(`${API_URL}/api/executions`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -75,8 +64,6 @@ export default function HeaderNew() {
         if (res.ok) {
           const data = await res.json();
           const todasLasExec = data.data || [];
-          
-          
           const pendientesDeRevision = todasLasExec.filter(e => e.status === "completed");
           
           const formatoAlertas = pendientesDeRevision.map((e) => ({
@@ -86,7 +73,6 @@ export default function HeaderNew() {
           setNotificaciones(formatoAlertas);
         }
       } else {
-        
         const res = await fetch(`${API_URL}/api/assignments/my`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -94,8 +80,6 @@ export default function HeaderNew() {
         if (res.ok) {
           const data = await res.json();
           const misAsignaciones = data.data || [];
-          
-          // Filtramos solo las asignaciones nuevas que no empezó
           const nuevasAsignaciones = misAsignaciones.filter(a => a.status === "pending");
           
           const formatoAlertas = nuevasAsignaciones.map((a) => ({
@@ -146,7 +130,6 @@ export default function HeaderNew() {
 
         {usuario && (
           <nav className={styles["header-new__nav"]}>
-            
             <Link href="/user" className={styles["header-new__nav-link"]}>Usuarios</Link>
 
             {rol === "admin" || rol === "supervisor" ? (
@@ -168,8 +151,6 @@ export default function HeaderNew() {
         {usuario && (
           <>
             <div className={styles["header-new__actions"]} style={{ position: "relative" }}>
-              
-              
               <button 
                 className={styles["header-new__action-btn"]}
                 onClick={() => setMostrarDropdown(!mostrarDropdown)}
@@ -197,7 +178,6 @@ export default function HeaderNew() {
                 )}
               </button>
 
-              
               {mostrarDropdown && (
                 <div style={{
                   position: "absolute",
@@ -246,55 +226,42 @@ export default function HeaderNew() {
                 </div>
               )}
             </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: "1.2" }}>
+                <span style={{ color: "#334155", fontSize: 14, fontWeight: "600", textTransform: "capitalize" }}>
+                  Hola, {usuario}
+                </span>
+                {rol && (
+                  <span style={{ color: "#64748b", fontSize: 11, fontWeight: "500", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    {rol}
+                  </span>
+                )}
+              </div>
+
+              <button
+                onClick={cerrarSesion}
+                style={{
+                  padding: "6px 12px",
+                  background: "#ef4444",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  cursor: "pointer",
+                }}
+              >
+                Cerrar sesión
+              </button>
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                alt="Profile picture"
+                style={{ width: '40px', height: '40px', borderRadius: '50%' }}
+              />
+            </div>
           </>
         )}
-
-        
-        {usuario ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            
-            
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1.2" }}>
-              <span style={{ color: "#334155", fontSize: 14, fontWeight: "600", textTransform: "capitalize" }}>
-                Hola, {usuario}
-              </span>
-              {rol && (
-                <span style={{ color: "#64748b", fontSize: 11, fontWeight: "500", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  {rol}
-                </span>
-              )}
-            </div>
-
-            <button
-              onClick={cerrarSesion}
-              style={{
-                padding: "6px 12px",
-                background: "#ef4444",
-                color: "#fff",
-                border: "none",
-                borderRadius: 6,
-                fontSize: 12,
-                cursor: "pointer",
-              }}
-            >
-              Cerrar sesión
-            </button>
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-              alt="Profile picture"
-              style={{ width: '40px', height: '40px', borderRadius: '50%' }}
-            />
-          </div>
-        ) : (
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Link href="/login" style={{ color: "#2b4bee", fontSize: 14, textDecoration: "none" }}>
-              Ingresar
-            </Link>
-            <Link href="/register" style={{ color: "#2b4bee", fontSize: 14, textDecoration: "none" }}>
-              Registrarme
-            </Link>
-          </div>
-        )}
+       
       </div>
     </header>
   );

@@ -10,7 +10,7 @@ export default function Home() {
   const [rol, setRol] = useState(null);
   const [cargando, setCargando] = useState(true);
   
-  
+  // Estados para los datos reales de la API
   const [asignaciones, setAsignaciones] = useState([]);
   const [cargandoDatos, setCargandoDatos] = useState(false);
   const [errorDatos, setErrorDatos] = useState("");
@@ -101,6 +101,7 @@ export default function Home() {
   return (
     <div className="flex h-screen w-full flex-col bg-zinc-50 font-sans text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
       
+    
       
       <div className="flex-1 overflow-y-auto">
         <main className="mx-auto max-w-7xl p-6 md:p-8">

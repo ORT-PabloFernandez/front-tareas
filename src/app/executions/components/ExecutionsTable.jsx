@@ -55,8 +55,10 @@ return (
                     <th className="py-2 px-4 border-b">Email de Colaborador</th>
                     <th className="py-2 px-4 border-b">Inicio</th>
                     <th className="py-2 px-4 border-b">Finalización</th>
-                    <th className="py-2 px-4 border-b">Acciones</th>
-                    </tr>
+                    {role === "collaborator" && (
+                        <th className="py-2 px-4 border-b">Acciones</th>
+                    )}
+                </tr>
             </thead>
             <tbody>
                 {statusFilteredExecutions.map((execution) => (

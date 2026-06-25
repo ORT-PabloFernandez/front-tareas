@@ -128,6 +128,13 @@ export default function HeaderNew() {
           <h2 className={styles["header-new__logo-text"]}>TaskFlow</h2>
         </Link>
 
+        {!usuario && (
+          <nav className={styles["header-new__nav"]}>
+            <Link href="/login" className={styles["header-new__nav-link"]}>Iniciar Sesión</Link>
+            <Link href="/register" className={styles["header-new__nav-link"]}>Registrarse</Link>
+          </nav>
+        )}
+
         {usuario && (
           <nav className={styles["header-new__nav"]}>
             <Link href="/user" className={styles["header-new__nav-link"]}>Usuarios</Link>

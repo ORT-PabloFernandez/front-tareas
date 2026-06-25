@@ -32,7 +32,7 @@ export default function AssignmentDetailPage() {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        const currentRole = localStorage.getItem("role");
+        const currentRole = localStorage.getItem("rol");
 
         if (!token) {
             setError("No autenticado. Por favor, inicia sesión.");

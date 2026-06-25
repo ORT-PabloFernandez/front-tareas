@@ -10,7 +10,7 @@ const ASSIGNMENTS_ENDPOINT = "https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.
 async function getMyAssignments() {
 
     const token = localStorage.getItem("token");
-    const response = await fetch(ASSIGNMENTS_ENDPOINT, {
+    const response = await fetch(`${ASSIGNMENTS_ENDPOINT}/my`, {
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
@@ -56,10 +56,10 @@ export default function AssignmentsPage() {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [role, setRole] = useState(null);
+    const [rol, setRol] = useState(null);
 
     useEffect(() => {
-        const currentRole = localStorage.getItem("role");
+        const currentRole = localStorage.getItem("rol");
         const token = localStorage.getItem("token");
 
         if (!token) {
@@ -68,7 +68,7 @@ export default function AssignmentsPage() {
             return;
         }
 
-        setRole(currentRole);
+        setRol(currentRole);
 
         async function loadAssignments() {
             try {
@@ -114,14 +114,17 @@ export default function AssignmentsPage() {
                         Volver al inicio
                     </Link>
                     <h1 className="text-3xl font-bold">
-                        {role === "collaborator" ? "Mis Asignaciones" : "Gestión de Asignaciones"}
+                        {rol === "collaborator" ? "Mis Asignaciones" : "Gestión de Asignaciones"}
                     </h1>
                 </div>
                 
-                {(role === "admin" || role === "supervisor") && (
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium transition">
-              + Nueva Asignación
-            </button>
+                {(rol === "admin" || rol === "supervisor") && (
+                    <Link
+                        href="/assignments/new"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium transition"
+                    >
+                        + Nueva Asignación
+                    </Link>
                 )}
                 </div>
 

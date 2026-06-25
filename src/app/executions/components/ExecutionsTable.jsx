@@ -18,6 +18,13 @@ const filteredExecutions = executions.filter((e) => e.checklistTitle?.toLowerCas
 
 const statusFilteredExecutions = selectedStatus ? filteredExecutions.filter((execution) => execution.status === selectedStatus) : filteredExecutions;
 
+const statusMapping = {
+    "pending": "Pendiente",
+    "in_progress": "En Progreso",
+    "completed": "Completada",
+    "reviewed": "Revisada"
+  };
+
 return (
     <div>
         <div>
@@ -64,7 +71,7 @@ return (
                     {execution.checklistTitle}
                   </button>
                 </td>
-                        <td className="py-2 px-4 border-b">{execution.status}</td>
+                        <td className="py-2 px-4 border-b">{statusMapping[execution.status] || execution.status}</td>
                         <td className="py-2 px-4 border-b">{execution.collaboratorEmail}</td>
                         <td className="py-2 px-4 border-b">{new Date(execution.startedAt).toLocaleString()}</td>
                         <td className="py-2 px-4 border-b">{execution.completedAt ? new Date(execution.completedAt).toLocaleString() : "N/A"}</td>

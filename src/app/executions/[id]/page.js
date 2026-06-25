@@ -27,6 +27,13 @@ export default function ExecutionPage() {
     const [notes, setNotes] = useState("");
     const router = useRouter();
 
+    const statusMapping = {
+    "pending": "Pendiente",
+    "in_progress": "En Progreso",
+    "completed": "Completada",
+    "reviewed": "Revisada"
+  };
+
   useEffect(() => {
     setRole(localStorage.getItem("rol"));
     async function loadExecution() {
@@ -168,7 +175,7 @@ async function handleComplete() {
                     <p className="text-zinc-400 text-sm"><strong>ID de Asignación:</strong> {execution.assignmentId}</p>
                 </div>
                 <div className="bg-zinc-800 rounded-lg p-4">
-                    <p className="text-zinc-400 text-sm"><strong>Estado:</strong> {execution.status}</p>
+                    <p className="text-zinc-400 text-sm"><strong>Estado:</strong> {statusMapping[execution.status] || execution.status}</p>
                 </div>
                 <div className="bg-zinc-800 rounded-lg p-4">
                     <p className="text-zinc-400 text-sm"><strong>Email del Colaborador:</strong> {execution.collaboratorEmail}</p>

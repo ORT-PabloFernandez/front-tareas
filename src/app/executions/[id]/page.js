@@ -272,7 +272,7 @@ async function handleComplete() {
               )}
             </div>
             <div className="flex gap-4 flex-wrap">
-              {role == "supervisor" && execution.status !== "reviewed" && (
+              {role == "supervisor" && execution.status === "completed" && (
                 <button
                   onClick={handleReview}
                   className="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg font-medium"

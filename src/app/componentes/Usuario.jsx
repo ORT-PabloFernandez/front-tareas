@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import UserList from "./UserList"; 
 
 const API_URL = "https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net";
 
@@ -10,43 +11,85 @@ export default function Usuario() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function getUsuarios() {
+    async function obtenerUsuarios() {
       try {
-        const token = localStorage.getItem("token");
+        let token = localStorage.getItem("token");
+        
+        if (!token) {
+          throw new Error("No se encontró el token. Por favor, inicia sesión nuevamente.");
+        }
 
+        if (token.startsWith("Bearer ")) {
+          token = token.slice(7).trim();
+        }
+        
+       
         const res = await fetch(`${API_URL}/api/users`, {
+          method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
         });
 
-        if (!res.ok) throw new Error("Error al traer los usuarios");
+        
+        if (res.status === 401) {
+          console.warn("Fallo con 'Bearer', intentando enviar el token plano...");
+          const resSegundoIntento = await fetch(`${API_URL}/api/users`, {
+            method: "GET",
+            headers: {
+              "Authorization": token, 
+              "Content-Type": "application/json"
+            }
+          });
 
-        const data = await res.json();
-        setUsuarios(data.data || data);
+          if (resSegundoIntento.ok) {
+            const respuestaData = await resSegundoIntento.json();
+            setUsuarios(respuestaData.data || respuestaData || []);
+            return; 
+          }
+        }
+
+        if (!res.ok) {
+          let mensajeBackend = "";
+          try {
+            const errorData = await res.json();
+            mensajeBackend = errorData.message || JSON.stringify(errorData);
+          } catch {
+            mensajeBackend = "El servidor denegó el acceso.";
+          }
+          throw new Error(`Código ${res.status}: ${mensajeBackend}`);
+        }
+
+        const respuestaData = await res.json();
+        setUsuarios(respuestaData.data || respuestaData || []);
       } catch (err) {
+        console.error("Error al obtener la lista de usuarios:", err);
         setError(err.message);
       } finally {
         setCargando(false);
       }
     }
 
-    getUsuarios();
+    obtenerUsuarios();
   }, []);
 
-  if (cargando) return <p>Cargando usuarios...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (cargando) {
+    return (
+      <div className="flex justify-center p-12">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent"></div>
+      </div>
+    );
+  }
 
-  return (
-    <div style={{ padding: "16px", fontFamily: "sans-serif" }}>
-      <h2>Lista de Registrados</h2>
-      {usuarios.map((u) => (
-        <div key={u._id} style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 12, marginBottom: 8 }}>
-          <p><strong>Nombre:</strong> {u.username || u.nombre}</p>
-          <p><strong>Email:</strong> {u.email}</p>
-          <p><strong>Rol:</strong> {u.role || u.rol}</p>
-        </div>
-      ))}
-    </div>
-  );
+  if (error) {
+    return (
+      <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400 text-center">
+        ⚠️ Error: {error}
+      </div>
+    );
+  }
+
+  
+  return <UserList usuarios={usuarios} />;
 }

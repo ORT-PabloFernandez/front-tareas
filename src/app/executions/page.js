@@ -28,7 +28,7 @@ async function getExecutions(page, email) {
 }
 
 export function getRole() {
-  return localStorage.getItem("role");
+  return localStorage.getItem("rol");
 }
 
 export function getEmail() {
@@ -44,15 +44,20 @@ export default function ExecutionsPage() {
   const [role, setRole] = useState(null);
   const [email, setEmail] = useState(null);
   const [emailFilter, setEmailFilter] = useState("");
+  const [typedEmail, setTypedEmail] = useState("");
+  const [isSessionReady, setIsSessionReady] = useState(false);
 
   useEffect(() => {
-    setRole(localStorage.getItem("role"));
-    setEmail(localStorage.getItem("email"));
+    setRole(localStorage.getItem("rol"));
+    setEmail(localStorage.getItem("usuario"));
+    setIsSessionReady(true);
   }, []);
 
   useEffect(() => {
+    if (!isSessionReady) return;
     async function loadExecutions() {
       try {
+        setLoading(true);
         let collaboratorEmail = null;
         if (role === "collaborator") {
           collaboratorEmail = email;
@@ -71,8 +76,8 @@ export default function ExecutionsPage() {
     }
 
     loadExecutions();
-  }, [page, role, email, emailFilter]);
-  if (loading) {
+  }, [page, role, email, emailFilter, isSessionReady]);
+  if (!isSessionReady || loading) {
     return (
       <div className="p-6 text-white">
         <h1>Cargando ejecuciones...</h1>
@@ -93,13 +98,21 @@ export default function ExecutionsPage() {
       <div className="mb-4">
         <input
           type="email"
-          value={emailFilter}
-          onChange={(e) => setEmailFilter(e.target.value)}
+          value={typedEmail}
+          onChange={(e) => setTypedEmail(e.target.value)}
           placeholder="Filtrar por email"
           className="border p-2 rounded"
         />
         <button
-          onClick={() => setEmailFilter("")}
+          onClick={() => setEmailFilter(typedEmail)}
+          className="ml-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+        >
+          Buscar
+        </button>
+        <button
+          onClick={() => {setTypedEmail("");
+          setEmailFilter("");
+          }}
           className="ml-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
         >
           Limpiar filtro

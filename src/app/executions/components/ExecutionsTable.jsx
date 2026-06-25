@@ -8,6 +8,11 @@ export default function ExecutionsTable({ executions }) {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    setRole(localStorage.getItem("rol"));
+  }, []);
 
 const filteredExecutions = executions.filter((e) => e.checklistTitle?.toLowerCase().includes(search.toLowerCase()));
 
@@ -43,6 +48,7 @@ return (
                     <th className="py-2 px-4 border-b">Email de Colaborador</th>
                     <th className="py-2 px-4 border-b">Inicio</th>
                     <th className="py-2 px-4 border-b">Finalización</th>
+                    <th className="py-2 px-4 border-b">Acciones</th>
                     </tr>
             </thead>
             <tbody>
@@ -62,6 +68,18 @@ return (
                         <td className="py-2 px-4 border-b">{execution.collaboratorEmail}</td>
                         <td className="py-2 px-4 border-b">{new Date(execution.startedAt).toLocaleString()}</td>
                         <td className="py-2 px-4 border-b">{execution.completedAt ? new Date(execution.completedAt).toLocaleString() : "N/A"}</td>
+                        <td className="py-2 px-4 border-b">
+                            {role === "collaborator" && execution.status === "in_progress" && (
+                            <button
+                                type="button"
+                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                onClick={() => router.push(`/executions/${execution._id}/fill`)}
+                            >
+                                Iniciar Ejecución
+                            </button>
+                            )}
+                            
+                        </td>
                     </tr>
                 ))}
             </tbody>

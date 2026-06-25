@@ -1,5 +1,5 @@
 import "./globals.css";
-// Cambiamos "components" por "componentes"
+
 import HeaderNew from "./componentes/HeaderNew";
 import FooterNew from "./componentes/FooterNew";
 
@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <head>
-        {/* Íconos usados por HeaderNew/FooterNew */}
+       
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"

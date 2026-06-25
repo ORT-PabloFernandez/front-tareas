@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -11,8 +11,20 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+ 
+  const [verificando, setVerificando] = useState(true);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
+
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/");
+    } else {
+      setVerificando(false); 
+    }
+  }, [router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -36,17 +48,17 @@ export default function LoginPage() {
       const data = await res.json();
       console.log("Login exitoso, datos recibidos:", data);
       
-      // 1. Guardamos todo en el localStorage de forma única
+      
       localStorage.setItem("token", data.token);
       localStorage.setItem("usuario", data.data?.nombre || data.user?.nombre || email);
       
-      const userRole = data.data?.role || data.role || data.user?.role || "colaborador";
+      const userRole = data.data?.role || data.role || data.user?.role || "collaborator";
       localStorage.setItem("rol", userRole); 
 
-      // 2. Disparamos el evento para que el Header se entere en tiempo real
+      
       window.dispatchEvent(new Event("cambioAuth"));
 
-      // 3. Redireccionamos fluidamente al Home
+      
       router.push("/");
 
     } catch (error) {
@@ -56,54 +68,97 @@ export default function LoginPage() {
     }
   }
 
+  
+  if (verificando) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
-    <section style={estilos.section}>
-      <h1 style={{ marginBottom: 16 }}>Iniciar sesión</h1>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-4 py-12 font-sans dark:bg-zinc-950">
+      <div className="w-full max-w-md">
+        
+        
+        <div className="mb-6 text-center">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-sm mb-4">
+            ✓
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Iniciar sesión
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Introduce tus credenciales para acceder al panel operativo
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} style={estilos.form}>
-        <label style={estilos.label}>
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={estilos.input}
-          />
-        </label>
+        
+        <form 
+          onSubmit={handleSubmit} 
+          className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+        >
+          
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="ejemplo@correo.com"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition-all focus:border-blue-500 focus:bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-blue-500 dark:focus:bg-zinc-950"
+            />
+          </div>
 
-        <label style={estilos.label}>
-          Contraseña
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={estilos.input}
-          />
-        </label>
+          
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition-all focus:border-blue-500 focus:bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-blue-500 dark:focus:bg-zinc-950"
+            />
+          </div>
 
-        <button type="submit" disabled={cargando} style={estilos.boton}>
-          {cargando ? "Ingresando..." : "Ingresar"}
-        </button>
+          
+          {error && (
+            <div className="rounded-lg bg-red-50 p-3 text-xs font-medium text-red-600 dark:bg-red-950/30 dark:text-red-400">
+              ⚠️ {error}
+            </div>
+          )}
 
-        {error && <p style={{ color: "#ef4444" }}>{error}</p>}
-      </form>
+          
+          <button 
+            type="submit" 
+            disabled={cargando} 
+            className="mt-2 flex w-full items-center justify-center rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {cargando ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+            ) : (
+              "Ingresar"
+            )}
+          </button>
+        </form>
 
-      <p style={{ marginTop: 16, textAlign: "center" }}>
-        ¿No tenés cuenta?{" "}
-        <Link href="/register" style={{ color: "#2b4bee" }}>
-          Registrarme
-        </Link>
-      </p>
-    </section>
+        
+        <p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
+          ¿No tenés cuenta?{" "}
+          <Link href="/register" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
+            Registrarme
+          </Link>
+        </p>
+
+      </div>
+    </div>
   );
 }
-
-const estilos = {
-  section: { maxWidth: 420, margin: "0 auto", padding: 24 },
-  form: { display: "flex", flexDirection: "column", gap: 12, background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: 24 },
-  label: { display: "flex", flexDirection: "column", gap: 4, fontSize: 14, color: "#334155" },
-  input: { padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 8, fontSize: 16 },
-  boton: { marginTop: 8, padding: "10px 16px", background: "#2b4bee", color: "#fff", border: "none", borderRadius: 8, fontSize: 16, cursor: "pointer" },
-};

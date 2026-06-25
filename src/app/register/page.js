@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const API_URL = "https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net";
 
@@ -9,15 +10,26 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
-  // Estados para manejar el resultado del fetch 
+  
+  const [verificando, setVerificando] = useState(true);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
   const [ok, setOk] = useState(false);
 
+ 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/");
+    } else {
+      setVerificando(false);
+    }
+  }, [router]);
+
   async function handleSubmit(e) {
     e.preventDefault();
-    console.log({ name, email, password });
     setCargando(true);
     setError("");
     setOk(false);
@@ -30,11 +42,12 @@ export default function RegisterPage() {
         },
         body: JSON.stringify({ username: name, email, password })
       });
+
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.message || "No se pudo registrar el usuario");
       }
-      // Salió todo bien
+
       setOk(true);
       setName("");
       setEmail("");
@@ -46,99 +59,119 @@ export default function RegisterPage() {
     }
   }
 
+  
+  if (verificando) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
-    <section style={estilos.section}>
-      <h1 style={{ marginBottom: 16 }}>Crear cuenta</h1>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-4 py-12 font-sans dark:bg-zinc-950">
+      <div className="w-full max-w-md">
+        
+       
+        <div className="mb-6 text-center">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-sm mb-4">
+            ✓
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Crear cuenta
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Regístrate para comenzar a gestionar tus checklists operativos
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} style={estilos.form}>
-        <label style={estilos.label}>
-          Nombre
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            style={estilos.input}
-          />
-        </label>
+       
+        <form 
+          onSubmit={handleSubmit} 
+          className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+        >
+          
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Nombre
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="Tu nombre completo"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition-all focus:border-blue-500 focus:bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-blue-500 dark:focus:bg-zinc-950"
+            />
+          </div>
 
-        <label style={estilos.label}>
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={estilos.input}
-          />
-        </label>
+          
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="ejemplo@correo.com"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition-all focus:border-blue-500 focus:bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-blue-500 dark:focus:bg-zinc-950"
+            />
+          </div>
 
-        <label style={estilos.label}>
-          Contraseña
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={4}
-            style={estilos.input}
-          />
-        </label>
+         
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={4}
+              placeholder="Mínimo 4 caracteres"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm outline-none transition-all focus:border-blue-500 focus:bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:focus:border-blue-500 dark:focus:bg-zinc-950"
+            />
+          </div>
 
-        <button type="submit" disabled={cargando} style={estilos.boton}>
-          {cargando ? "Registrando..." : "Registrarme"}
-        </button>
+          
+          {error && (
+            <div className="rounded-lg bg-red-50 p-3 text-xs font-medium text-red-600 dark:bg-red-950/30 dark:text-red-400">
+              ⚠️ {error}
+            </div>
+          )}
 
-        {error && <p style={{ color: "#ef4444" }}>{error}</p>}
-        {ok && <p style={{ color: "#16a34a" }}>¡Cuenta creada con éxito!</p>}
-      </form>
+          {ok && (
+            <div className="rounded-lg bg-green-50 p-3 text-xs font-medium text-green-700 dark:bg-green-950/30 dark:text-green-400">
+              ✨ ¡Cuenta creada con éxito! Ya podés iniciar sesión.
+            </div>
+          )}
 
-      <p style={{ marginTop: 16, textAlign: "center" }}>
-        ¿Ya tenés cuenta?{" "}
-        <Link href="/login" style={{ color: "#2b4bee" }}>
-          Iniciar sesión
-        </Link>
-      </p>
-    </section>
+          
+          <button 
+            type="submit" 
+            disabled={cargando} 
+            className="mt-2 flex w-full items-center justify-center rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {cargando ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+            ) : (
+              "Registrarme"
+            )}
+          </button>
+        </form>
+
+        
+        <p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
+          ¿Ya tenés cuenta?{" "}
+          <Link href="/login" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
+            Iniciar sesión
+          </Link>
+        </p>
+
+      </div>
+    </div>
   );
 }
-
-const estilos = {
-  section: {
-    maxWidth: 420,
-    margin: "0 auto",
-    padding: 24,
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 12,
-    background: "#fff",
-    border: "1px solid #e2e8f0",
-    borderRadius: 12,
-    padding: 24,
-  },
-  label: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 4,
-    fontSize: 14,
-    color: "#334155",
-  },
-  input: {
-    padding: "10px 12px",
-    border: "1px solid #cbd5e1",
-    borderRadius: 8,
-    fontSize: 16,
-  },
-  boton: {
-    marginTop: 8,
-    padding: "10px 16px",
-    background: "#2b4bee",
-    color: "#fff",
-    border: "none",
-    borderRadius: 8,
-    fontSize: 16,
-    cursor: "pointer",
-  },
-};

@@ -11,6 +11,7 @@ async function getMyAssignments() {
 
     const token = localStorage.getItem("token");
     const response = await fetch(`${ASSIGNMENTS_ENDPOINT}/my`, {
+    // se envia el JWT en el header para que el backend pueda validar el rol del usuario
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
@@ -59,9 +60,11 @@ export default function AssignmentsPage() {
     const [rol, setRol] = useState(null);
 
     useEffect(() => {
+        // se obtiene el rol del usuario desde localStorage
         const currentRole = localStorage.getItem("rol");
         const token = localStorage.getItem("token");
 
+        // validación de autenticación
         if (!token) {
             setError("Error de autenticación. Por favor, iniciar sesión."); 
             setLoading(false);
@@ -70,7 +73,9 @@ export default function AssignmentsPage() {
 
         setRol(currentRole);
 
+        // se cargan las asignaciones según el rol del usuario, el callback del useEffect no puede ser async, por eso se define una función interna
         async function loadAssignments() {
+            // atajo caidas de la API
             try {
                 let data;
                 if (currentRole === "collaborator") {
@@ -89,6 +94,7 @@ export default function AssignmentsPage() {
         loadAssignments();
     }, []);
 
+    // corta la ejecución si está cargando para no renderizar la tabla antes de tener los datos
     if (loading) {
         return (
             <div className="p-6 text-white bg-black min-h-screen">
@@ -97,6 +103,7 @@ export default function AssignmentsPage() {
         );
     }
 
+    // corta la ejecución si hay un error y no renderiza la tabla
     if (error) {
         return (
             <div className="p-6 text-red-500 bg-black min-h-screen">
@@ -118,7 +125,9 @@ export default function AssignmentsPage() {
                     </h1>
                 </div>
                 
+                
                 {(rol === "admin" || rol === "supervisor") && (
+                    // solo se dibuja el botón de nueva asignación si el rol es admin o supervisor
                     <Link
                         href="/assignments/new"
                         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium transition"

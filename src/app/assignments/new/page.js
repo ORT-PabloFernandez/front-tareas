@@ -64,6 +64,7 @@ export default function NewAssignmentPage() {
     loadFormDependencies();
   }, []);
 
+  // función que ataja el envío del formulario, hace la llamada a la API y redirige a la tabla de asignaciones
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);

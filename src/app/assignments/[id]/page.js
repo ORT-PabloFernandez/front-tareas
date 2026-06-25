@@ -6,6 +6,7 @@ import Link from "next/link";
 
 const API_BASE = "https://checklist-fwabdbgzf3cvf2br.brazilsouth-01.azurewebsites.net/api/assignments";
 
+// traigo asignaciones dado un id de colaborador
 async function getAssignments(id) {
     const token = localStorage.getItem("token");
     const response = await fetch(`${API_BASE}/${id}`, {
@@ -27,11 +28,13 @@ export default function AssignmentDetailPage() {
     const { id } = useParams();
     const router = useRouter(); 
     
+    // estados para asignación, carga, error y rol del usuario
     const [assignment, setAssignment] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [role, setRole] = useState(null);
 
+    // estados para controlar la actualización y eliminación de la asignación
     const [isUpdating, setIsUpdating] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -63,6 +66,7 @@ export default function AssignmentDetailPage() {
         }
     }, [id]);
 
+    // función para actualizar el estado de la asignación
     async function updateStatus(newStatus) {
         if (!window.confirm(`¿Estás seguro de cambiar el estado a "${newStatus}"?`)) {
             return;
@@ -95,6 +99,7 @@ export default function AssignmentDetailPage() {
         }
     }
 
+    // función para eliminar asignación
     async function deleteAssignment() {
         if (!window.confirm("¿Estás  seguro de  eliminar esta asignación? Esta acción no se puede deshacer.")) {
             return;

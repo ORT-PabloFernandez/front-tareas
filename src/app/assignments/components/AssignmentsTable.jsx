@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AssignmentsTable({ assignments }) {
+  // se guardan los estados que escribe el usuario en los filtros de búsqueda y estado
     const [search, setSearch] = useState("");
-    const router = useRouter();
     const [selectedStatus, setSelectedStatus] = useState("");
+    const router = useRouter();
 
-    // Buscar por título de asignación o título de checklist
+    // Buscar por título de asignación o título de checklist, si está vacío se muestra todo
     const filteredAssignments = assignments.filter(assignment => {
         
         if (!search) return true;
@@ -21,7 +22,7 @@ export default function AssignmentsTable({ assignments }) {
         
     });
 
-    // Filtrar por estado
+    // Filtrar por estado sobre la búsqueda
     const statusFilteredAssignments = selectedStatus
         ? filteredAssignments.filter(a => a.status === selectedStatus)
         : filteredAssignments;
@@ -46,7 +47,7 @@ export default function AssignmentsTable({ assignments }) {
         <input
           type="text"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)} // se actualiza el estado de búsqueda cada vez que el usuario escribe
           placeholder="Buscar por título o checklist..."
           className="p-2 border border-gray-700 bg-gray-800 text-white rounded flex-grow"
         />
@@ -84,11 +85,12 @@ export default function AssignmentsTable({ assignments }) {
                 </td>
               </tr>
             ) : (
+              // se itera assignments para generar las filas de la tabla dinámicamente
               statusFilteredAssignments.map((assignment) => (
                 <tr 
                   key={assignment._id} 
                   className="border-b border-gray-800 hover:bg-gray-800 transition cursor-pointer"
-                  onClick={() => router.push(`/assignments/${assignment._id}`)}
+                  onClick={() => router.push(`/assignments/${assignment._id}`)} // lleva a la pagían de detalle luego de hacer click
                 >
                   <td className="py-3 px-4 font-semibold text-white">
                     {assignment.title}

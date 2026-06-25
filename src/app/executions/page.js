@@ -119,6 +119,10 @@ export default function ExecutionsPage() {
         </button>
       </div>
     )}
+    {role === "collaborator" && (
+      <link href="/executions/new" className="mb-4 inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+        + Nueva Ejecución
+      </link>)}
       <ExecutionsTable executions={executions} />
       {page > 1 ? (
             <Link

@@ -139,7 +139,7 @@ export default function HeaderNew() {
               </>
             ) : (
               <>
-                <Link href="/asignaciones" className={styles["header-new__nav-link"]}>Mis Asignaciones</Link>
+                <Link href="/assignments" className={styles["header-new__nav-link"]}>Mis Asignaciones</Link>
                 <Link href="/executions" className={styles["header-new__nav-link"]}>Mis Ejecuciones</Link>
               </>
             )}

@@ -12,12 +12,14 @@ export default function NewExecutionPage() {
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [assignmentId, setAssignmentId] = useState("");
 
     useEffect(() => {
+        const token = localStorage.getItem("token");
         const fetchAssignments = async () => {
             try {
                 setLoading(true);
-                const assigment = await fetch(`${API_BASE}/api/assigments`, {
+                const assignment = await fetch(`${API_BASE}/api/assignments`, {
           headers: { Authorization: `Bearer ${token}` }
         });
                 if (!assignment.ok) {
@@ -87,8 +89,12 @@ export default function NewExecutionPage() {
                   onChange={(e) => setAssignmentId(e.target.value)}
                   className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition">
                     <option value="">-- Selecciona una asignación --</option>
-                    {assignments.map((assignment) => (
-                        <option key={assignment.id} value={assignment.id}>
+                    {Array.isArray(assignments) && assignments
+                    .filter(assignment => {
+                        const loggedEmail = localStorage.getItem("usuario");
+                        return loggedEmail === assignment.collaboratorEmail;
+                    }).map((assignment) => (
+                        <option key={assignment._id||assignment.id} value={assignment.id}>
                             {assignment.title}
                         </option>
                     ))}
